@@ -53,7 +53,19 @@ int poll (struct pollfd* fds, nfds_t n, int timeout) {
     int r = do_poll(fds, n);
 
     if (UNLIKELY(r == 0)) {
+        #ifdef SYS_poll
         return syscall_cp(SYS_poll, fds, n, timeout);
+        #else
+        /* Use ppoll when poll is not available */
+        struct timespec ts, *tsp = NULL;
+        if (timeout >= 0) {
+            ts.tv_sec = timeout / 1000;
+            ts.tv_nsec = (timeout % 1000) * 1000000;
+            tsp = &ts;
+        }
+        /* ppoll with NULL signal mask behaves like poll */
+        return syscall_cp(SYS_ppoll, fds, n, tsp, NULL);
+        #endif
     }
     
     return r;

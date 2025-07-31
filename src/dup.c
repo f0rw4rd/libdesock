@@ -34,13 +34,23 @@ int dup2 (int old, int new) {
 
     /* Don't allow overwriting of stdin/stdout */
     if (LIKELY(r > 1)) {
+        #ifdef SYS_dup2
         while ((r = __syscall(SYS_dup2, old, new)) == -EBUSY) ;
+        #else
+        /* Use dup3 with flags=0 to emulate dup2 */
+        while ((r = __syscall(SYS_dup3, old, new, 0)) == -EBUSY) ;
+        #endif
     }
 #ifdef DUP_STDIN
     /* except in this case do allow overwriting of stdin*/
     else if (r==0) {
         DEBUG_LOG("Overwriting stdin...");
+        #ifdef SYS_dup2
         while ((r = __syscall(SYS_dup2, old, new)) == -EBUSY) ;
+        #else
+        /* Use dup3 with flags=0 to emulate dup2 */
+        while ((r = __syscall(SYS_dup3, old, new, 0)) == -EBUSY) ;
+        #endif
     }
 #endif
     else {
