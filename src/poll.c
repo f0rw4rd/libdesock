@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #define __USE_GNU
 #include <poll.h>
+#include <stddef.h>  /* for NULL */
 
 #include "util.h"
 #include "desock.h"

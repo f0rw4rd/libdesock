@@ -1,6 +1,7 @@
 #include <sys/select.h>
 #include <errno.h>
 #include <string.h>
+#include <signal.h>  /* for _NSIG */
 
 #include "util.h"
 #include "desock.h"
